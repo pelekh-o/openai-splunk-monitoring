@@ -1,0 +1,420 @@
+{
+	"visualizations": {
+		"viz_PKH1j18n": {
+			"type": "splunk.singlevalue",
+			"options": {
+				"sparklineDisplay": "off"
+			},
+			"dataSources": {
+				"primary": "ds_kgmPJ4pR"
+			},
+			"title": "Total Requests"
+		},
+		"viz_mNsRb5Lf": {
+			"type": "splunk.singlevalue",
+			"options": {
+				"majorValue": "> sparklineValues | lastPoint()",
+				"trendValue": "> sparklineValues | delta(-2)",
+				"sparklineValues": "> primary | seriesByName('avg_response_time')",
+				"unit": "s",
+				"sparklineDisplay": "off",
+				"numberPrecision": 2
+			},
+			"dataSources": {
+				"primary": "ds_MwEHT8Ef"
+			},
+			"title": "AVG Response Time"
+		},
+		"viz_itLUt4Rq": {
+			"type": "splunk.singlevalue",
+			"title": "AVG Tokens per Request",
+			"dataSources": {
+				"primary": "ds_FSb8fhn8"
+			},
+			"options": {
+				"majorValue": "> sparklineValues | lastPoint()",
+				"trendValue": "> sparklineValues | delta(-2)",
+				"sparklineValues": "> primary | seriesByName('avg(response.usage.total_tokens)')",
+				"sparklineDisplay": "off"
+			}
+		},
+		"viz_1hkKRQpx": {
+			"type": "splunk.singlevalue",
+			"title": "Cost",
+			"dataSources": {
+				"primary": "ds_AkKRm6wO"
+			},
+			"options": {
+				"unitPosition": "before",
+				"unit": "$",
+				"majorValue": "> sparklineValues | lastPoint()",
+				"trendValue": "> sparklineValues | delta(-2)",
+				"sparklineValues": "> primary | seriesByName('sum(request_price)')",
+				"numberPrecision": 2
+			},
+			"description": "Prices are based on https://openai.com/api/pricing/"
+		},
+		"viz_4V7RPleN": {
+			"type": "splunk.area",
+			"dataSources": {
+				"primary": "ds_DCTgV3Bj"
+			},
+			"title": "Cost by Model",
+			"options": {
+				"stackMode": "stacked",
+				"nullValueDisplay": "zero",
+				"xAxisTitleText": "time",
+				"yAxisTitleText": "USD",
+				"legendDisplay": "top"
+			},
+			"showProgressBar": false,
+			"showLastUpdated": false
+		},
+		"viz_Yr4Z5JAb": {
+			"type": "splunk.line",
+			"title": "AVG Response Time by Model",
+			"dataSources": {
+				"primary": "ds_t0UeX071"
+			},
+			"options": {
+				"legendDisplay": "top",
+				"xAxisTitleText": "time",
+				"yAxisTitleText": "sec",
+				"nullValueDisplay": "zero"
+			}
+		},
+		"viz_aM8wIE1Y": {
+			"type": "splunk.pie",
+			"title": "Requests by Model",
+			"dataSources": {
+				"primary": "ds_RXQxNtZx"
+			},
+			"options": {
+				"showDonutHole": true
+			}
+		},
+		"viz_hoQaL7ct": {
+			"type": "splunk.table",
+			"title": "Completion Requests",
+			"dataSources": {
+				"primary": "ds_zLdpy5Lq"
+			},
+			"options": {
+				"columnFormat": {
+					"Response Time": {
+						"data": "> table | seriesByName(\"Response Time\") | formatByType(Response_TimeColumnFormatEditorConfig)"
+					},
+					"Response Duration": {
+						"data": "> table | seriesByName(\"Response Duration\") | formatByType(Response_DurationColumnFormatEditorConfig)"
+					}
+				}
+			},
+			"context": {
+				"Response_TimeColumnFormatEditorConfig": {
+					"number": {
+						"thousandSeparated": false,
+						"unitPosition": "after",
+						"unit": "s",
+						"precision": 2
+					}
+				},
+				"Response_DurationColumnFormatEditorConfig": {
+					"number": {
+						"thousandSeparated": false,
+						"unitPosition": "after",
+						"unit": "s",
+						"precision": 2
+					}
+				}
+			}
+		},
+		"viz_jroUjszY": {
+			"type": "splunk.table",
+			"title": "ChatCompletion Requests",
+			"dataSources": {
+				"primary": "ds_mklH93uH"
+			},
+			"options": {
+				"columnFormat": {
+					"Response Duration": {
+						"data": "> table | seriesByName(\"Response Duration\") | formatByType(Response_DurationColumnFormatEditorConfig)"
+					}
+				}
+			},
+			"context": {
+				"Response_DurationColumnFormatEditorConfig": {
+					"number": {
+						"thousandSeparated": false,
+						"unitPosition": "after",
+						"unit": "s",
+						"precision": 2
+					}
+				}
+			}
+		},
+		"viz_TZ2jmD97": {
+			"type": "splunk.singlevalue",
+			"options": {
+				"numberPrecision": 2
+			},
+			"dataSources": {
+				"primary": "ds_AAC3yfqc"
+			},
+			"title": "AVG Requests per Minute"
+		}
+	},
+	"dataSources": {
+		"ds_OOeAnxul": {
+			"type": "ds.search",
+			"options": {
+				"query": "index=\"open_ai\"\n| fields * \n",
+				"queryParameters": {
+					"earliest": "$global_time.earliest$",
+					"latest": "$global_time.latest$"
+				},
+				"enableSmartSources": true
+			},
+			"name": "ds_openai"
+		},
+		"ds_kgmPJ4pR": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_OOeAnxul",
+				"query": "| stats count"
+			},
+			"name": "ds_requests_count"
+		},
+		"ds_MwEHT8Ef": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_OOeAnxul",
+				"query": "| stats avg(response_time) as avg_response_time\n| eval avg_response_time = round(avg_response_time, 2)"
+			},
+			"name": "ds_avg_resp_time"
+		},
+		"ds_FSb8fhn8": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_OOeAnxul",
+				"query": "| stats avg(response.usage.total_tokens)"
+			},
+			"name": "ds_avg_tokens_per_request"
+		},
+		"ds_prX4Xdgq": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_OOeAnxul",
+				"query": "| stats avg(response.usage.prompt_tokens)"
+			},
+			"name": "ds_avg_prompt_tokens_per"
+		},
+		"ds_7oGpurw0": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_OOeAnxul",
+				"query": "| stats avg(response.usage.completion_tokens)"
+			},
+			"name": "ds_avg_competition_tokens_per_request"
+		},
+		"ds_AkKRm6wO": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_OOeAnxul",
+				"query": "| rename response.usage.* as *, request.model as model\n| lookup openai_prices model OUTPUTNEW price_prompt, price_competition\n| eval price_prompt = mvindex(price_prompt, 0)\n| eval price_competition = mvindex(price_competition, 0)\n| eval request_price = (price_prompt * prompt_tokens + price_competition * completion_tokens)/1000\n| stats sum(request_price)"
+			},
+			"name": "ds_cost"
+		},
+		"ds_DCTgV3Bj": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_OOeAnxul",
+				"query": "| rename response.usage.* as *, request.model as model\n| lookup openai_prices model OUTPUTNEW price_prompt, price_competition\n| eval price_prompt = mvindex(price_prompt, 0)\n| eval price_competition = mvindex(price_competition, 0)\n| eval request_price = (price_prompt * prompt_tokens + price_competition * completion_tokens)/1000\n| timechart sum(request_price) by model"
+			},
+			"name": "ds_cost_by_model"
+		},
+		"ds_t0UeX071": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_OOeAnxul",
+				"query": "| timechart avg(response_time) by request.model usenull=f"
+			},
+			"name": "ds_avg_response_time_by_model"
+		},
+		"ds_RXQxNtZx": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_OOeAnxul",
+				"query": "| stats count by request.model\n| sort - count"
+			},
+			"name": "ds_requests_by_model"
+		},
+		"ds_zLdpy5Lq": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_OOeAnxul",
+				"query": "| eval text = ltrim('response.choices{}.text')\n| eval text = replace(text, \"^(?m)\\s+\",\"\")\n| where isnotnull('request.prompt')\n| table _time, request.model, request.prompt, text, response_time\n| sort - _time\n| rename request.model as \"Model\", request.prompt as \"Prompt\", text as \"Response\", response_time as \"Response Duration\""
+			},
+			"name": "ds_competition_requests"
+		},
+		"ds_mklH93uH": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_OOeAnxul",
+				"query": "| rename request.messages{}.* as messages.*\n| where isnotnull('messages.content')\n| eval reply_text = replace('response.choices{}.message.content', \"^(?m)\\s+\",\" \")\n| eval message = mvzip('messages.role', 'messages.content', \": \")\n| table _time, request.model, message, reply_text, response_time\n| sort - _time\n| rename request.model as \"Model\", message as \"Prompt\", reply_text as \"Response\", response_time as \"Response Duration\""
+			},
+			"name": "ds_chat_competition_requests"
+		},
+		"ds_TjOwpu8a": {
+			"type": "ds.search",
+			"options": {
+				"query": "index=\"open_ai\"\n| fields *\n| stats count by request.model",
+				"queryParameters": {
+					"earliest": "-30d@d",
+					"latest": "now"
+				}
+			},
+			"name": "ds_model_filter"
+		},
+		"ds_AAC3yfqc": {
+			"type": "ds.chain",
+			"options": {
+				"extend": "ds_OOeAnxul",
+				"query": "| timechart limit=0 span=1m count\n| untable _time sourcetype events_per_min\n| stats avg(events_per_min) AS avg_per_min"
+			},
+			"name": "ds_rpm"
+		}
+	},
+	"defaults": {
+		"dataSources": {
+			"ds.search": {
+				"options": {
+					"queryParameters": {
+						"latest": "$global_time.latest$",
+						"earliest": "$global_time.earliest$"
+					}
+				}
+			}
+		}
+	},
+	"inputs": {
+		"input_global_trp": {
+			"type": "input.timerange",
+			"options": {
+				"token": "global_time",
+				"defaultValue": "-24h@h,now"
+			},
+			"title": "Global Time Range"
+		}
+	},
+	"layout": {
+		"type": "grid",
+		"options": {},
+		"structure": [
+			{
+				"item": "viz_PKH1j18n",
+				"type": "block",
+				"position": {
+					"x": 0,
+					"y": 0,
+					"w": 360,
+					"h": 100
+				}
+			},
+			{
+				"item": "viz_1hkKRQpx",
+				"type": "block",
+				"position": {
+					"x": 0,
+					"y": 100,
+					"w": 360,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_Yr4Z5JAb",
+				"type": "block",
+				"position": {
+					"x": 0,
+					"y": 350,
+					"w": 720,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_hoQaL7ct",
+				"type": "block",
+				"position": {
+					"x": 0,
+					"y": 600,
+					"w": 1200,
+					"h": 350
+				}
+			},
+			{
+				"item": "viz_jroUjszY",
+				"type": "block",
+				"position": {
+					"x": 0,
+					"y": 950,
+					"w": 1200,
+					"h": 350
+				}
+			},
+			{
+				"item": "viz_mNsRb5Lf",
+				"type": "block",
+				"position": {
+					"x": 360,
+					"y": 0,
+					"w": 280,
+					"h": 100
+				}
+			},
+			{
+				"item": "viz_4V7RPleN",
+				"type": "block",
+				"position": {
+					"x": 360,
+					"y": 100,
+					"w": 840,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_TZ2jmD97",
+				"type": "block",
+				"position": {
+					"x": 640,
+					"y": 0,
+					"w": 280,
+					"h": 100
+				}
+			},
+			{
+				"item": "viz_aM8wIE1Y",
+				"type": "block",
+				"position": {
+					"x": 720,
+					"y": 350,
+					"w": 480,
+					"h": 250
+				}
+			},
+			{
+				"item": "viz_itLUt4Rq",
+				"type": "block",
+				"position": {
+					"x": 920,
+					"y": 0,
+					"w": 280,
+					"h": 100
+				}
+			}
+		],
+		"globalInputs": [
+			"input_global_trp"
+		]
+	},
+	"description": "",
+	"title": "OpenAI Monitoring"
+}

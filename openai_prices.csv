@@ -1,0 +1,9 @@
+model,price_prompt,price_competition
+*ada*,0.0004,0.0004
+*babbage*,0.0005,0.0005
+*curie*,0.0020,0.0020
+*davinci*,0.0200,0.0200
+gpt-3.5-turbo-16k*,0.003,0.004
+gpt-3.5-turbo*,0.0015,0.002
+gpt-gpt-4-32k*,0.06,0.12
+gpt-4*,0.03,0.06
