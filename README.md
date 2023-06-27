@@ -32,3 +32,6 @@ This modification allows for the capture of response and metrics, which can then
 The `openai-splunk-monitoring` project is governed by the MIT License. 
 Additionally, it includes source code from external libraries. 
 For a comprehensive list of these libraries and the corresponding licensing terms, please refer to the third-party notices document.
+
+##
+Find more detail here: https://pelekh-o.github.io/blog/post/monitoring-openai-api-with-splunk/
